@@ -8,6 +8,7 @@
 \usepackage{graphicx}
 \usepackage{amssymb}
 \usepackage{epstopdf}
+%\usepackage{bibtex}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
 
 \title{\sc Notes on the asymptotic null distribution for modified higher criticism}
@@ -16,4 +17,10 @@
 
 \begin{document}
 
+According to Donoho and Lin \cite{HCHM}, the higher criticism statistic is defined as:
+
+$$\max_{0<\alpha<\alpha_0}\left(
+\frac{(\textrm{Fraction Significant at } \alpha - \alpha}{\alpha (1 - \alpha)}\right)$$
+
+\bibliography{refs}
 \end{document} 
