@@ -8,6 +8,7 @@
 \usepackage{graphicx}
 \usepackage{amssymb}
 \usepackage{epstopdf}
+\usepackage{bbm}
 %\usepackage{bibtex}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
 
@@ -22,5 +23,31 @@ According to Donoho and Lin \cite{HCHM}, the higher criticism statistic is defin
 $$\max_{0<\alpha<\alpha_0}\left(
 \frac{(\textrm{Fraction Significant at } \alpha - \alpha}{\alpha (1 - \alpha)}\right)$$
 
+In the case of $n$ independent tests, with iid test statistics $Z_i$ (not necessarily normally distributed - finite mean and variance is probably enough), the 'fraction significant at $\alpha$ is
+$$ F_n(t) = \frac1n \sum_{i=1}^n \mathbbm{1}_{|Z_i|>t}$$
+
+where $t$ is the value such that $P(|Z_i|>t) =\alpha$. For finite $n$ and $Z_1,...,Z_n$ iid, $F_n(t) ~ Bin(n,\alpha)$. If the $Z_i$ are independent but \emph{not} identically distributed, $F_n(t)$ follows a Poisson Binomial distribution. Applied to directly to p-values
+
+$$ F_n(\alpha) = \frac1n \sum_{i=1}^n \mathbbm{1}_{p_i < \alpha}$$
+
+If we assume that $p_i$ are iid $Unif(0,1)$ under the null, the CLT tells us that 
+
+$$\sqrt{n}\left(\frac{F_n(\alpha) - \alpha}{\sqrt{\alpha(1-\alpha)}}\right) \xrightarrow{d} N(0,1)$$
+
+This is identical to statistic defined in \cite{Xihong}:
+
+$$ S(t) = \sum_{i=1}^n \mathbbm{1}_{p_i < \alpha}$$
+
+$$HC(t) = \frac{S(t)-n t}{(\sqrt{nt(1-t)}} = n\frac{S(t)/n - t}{\sqrt{nt(1-t)}} 
+=   \sqrt{n}\frac{F_n(t) - t}{\sqrt{t(1-t)}}$$
+
+The first expression can be interpreted as a centered and scaled binomial random variable. The last expression is called the 'normalized uniform empirical process'. Clearly, it is asymptotically standard normal for each $0<t<1$
+
+However, we want the $\sup$ (or $\max$), and this changes the asymptotics. 
+
+$$HC^* = \max_{0<t<1} HC(t)$$
+
+\bibliographystyle{plain}
 \bibliography{refs}
+
 \end{document} 
