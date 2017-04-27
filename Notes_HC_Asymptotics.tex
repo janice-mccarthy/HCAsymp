@@ -9,6 +9,7 @@
 \usepackage{amssymb}
 \usepackage{epstopdf}
 \usepackage{bbm}
+\setlength\parindent{0pt}
 %\usepackage{bibtex}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
 
@@ -18,7 +19,9 @@
 
 \begin{document}
 
-According to Donoho and Lin \cite{HCHM}, the higher criticism statistic is defined as:
+\section{Higher Criticism in iid case}
+
+According to Donoho and Jin \cite{HCHM}, the higher criticism statistic is defined as:
 
 $$\max_{0<\alpha<\alpha_0}\left(
 \frac{(\textrm{Fraction Significant at } \alpha - \alpha}{\alpha (1 - \alpha)}\right)$$
@@ -36,18 +39,81 @@ $$\sqrt{n}\left(\frac{F_n(\alpha) - \alpha}{\sqrt{\alpha(1-\alpha)}}\right) \xri
 
 This is identical to statistic defined in \cite{Xihong}:
 
-$$ S(t) = \sum_{i=1}^n \mathbbm{1}_{p_i < \alpha}$$
+$$ S_n(t) = \sum_{i=1}^n \mathbbm{1}_{p_i < t}$$
 
-$$HC(t) = \frac{S(t)-n t}{(\sqrt{nt(1-t)}} = n\frac{S(t)/n - t}{\sqrt{nt(1-t)}} 
+$$HC(t) = \frac{S_n(t)-n t}{(\sqrt{nt(1-t)}} = n\frac{S(t)/n - t}{\sqrt{nt(1-t)}} 
 =   \sqrt{n}\frac{F_n(t) - t}{\sqrt{t(1-t)}}$$
 
-The first expression can be interpreted as a centered and scaled binomial random variable. The last expression is called the 'normalized uniform empirical process'. Clearly, it is asymptotically standard normal for each $0<t<1$
+The first expression can be interpreted as a centered and scaled binomial random variable. The last expression is called the 'normalized uniform empirical process'. Clearly, it is asymptotically standard normal for each $0<t<1$.\\
 
-However, we want the $\sup$ (or $\max$), and this changes the asymptotics. 
+
+However, we want the $\sup$ (or $\max$), and this changes the asymptotics greatly. 
 
 $$HC^* = \max_{0<t<1} HC(t)$$
 
-\bibliographystyle{plain}
+\section{Kolmogorov-Smirnov}
+
+Another interpretation is that if $X_1,...,X_n$ are iid with distribution $F$, then $F_n(t)$ is the empirical distribution function. If we define:
+(
+$$D_n = \sup_{t}\left|F_n(t) - F(t)\right|,$$
+
+then we have that $D_n \rightarrow 0$ in probability as $n\rightarrow \infty$. This holds for certain $F$ (generally continuous, but can be extended), and just says that the empirical distribution converges not just pointwise, but uniformly to the distribution of the $X_i$. This is the Glivenko-Cantelli Lemma.  \\
+
+Also of importance, $D_n$ is 'distribution free' - its distribution is the same regardless of the distribution $F$. It is a standard goodness-of-fit test: Assuming the null distribution of the $X_i$ is $F$, $D_n$ measures the deviation from the null and p-values can be computed to assess significance.\\
+
+Now, as $n\rightarrow\infty$
+
+$$\sqrt{n}D_n \xrightarrow{d} K$$
+
+with the distribution $G$ of $K$ ($K$ is known as the Kolmogorov-Smirnov statistic) given by:
+
+$$G(x) = P(K<x) = 1 - 2\sum_{k=1}^\infty (-1)^{k-1}e^{-2k^2x}$$
+
+This is not the Gumbel distribution, but the statistic $D_n$ differs from $HC$ in that we divide by the variance of the binomial (a function of $t$), before taking the supremum in $t$. The CDF above is \emph{close} to the Gumbel, in that the series of exponential terms is close to the Taylor series for an exponential, without the factorial terms in the denominator. However, I am not convinced that the Gumbel distribution is indeed the asymptotic distribution of the HC statistic. \\
+
+Now, the Kolmogorov statistic can be weighted to give different parts of the distribution more or less (or equal) importance in the test. The denominator in the HC is such a weight.  
+
+Anderson and Darling examined the asymptotics in \cite{AD}, but they consider in addition to the Kolmogorov ($K$) another statistic that is essentially the $L^2$ norm of the difference between the empirical and theoretical null distributions (in other words, both are just measures of the differences of the distributions, but $K$ uses the sup norm) It would likely take me a day or so to really parse out that paper, but a less-thorough glance suggests they do not have a general result for the weighted $K$, and instead focus more on the $L^2$ case.  
+
+\section{An important paper to take a look at}
+
+I found a 2015 paper (\cite{KSGene}) that seems to do something very similar to your proposed statistic (without the denominator). It takes the point of view of 'goodness of fit', and I think that is actually a better name than 'higher criticism' because what HC is really doing is a weighted goodness-of-fit test of the p-values against a null uniform distribution. Now, this paper weights \emph{the empirical distribution}, i.e. - the measured p-values in our case. We can do something different. More on that later.
+\section{Suggestions}
+
+Following the interpretation of the problem as a goodness-of-fit test, we might want to try the following:
+
+\begin{enumerate}
+\item Compare the current stat's performance to one without the denominator $1/\sqrt{(t(1-t))}$. I.e. use Kolmogorov directly to assess the deviation of the p-values from the uniform null. The reason for this suggestion is that in GOF, the weight is used to give higher importance to the tails of the theoretical null. Our null is uniform, so it doesn't have tails. Also, I am very convinced of the asymptotic distribution of the $K$ statistic. It comes from the very well-studied problem of Brownian motion. I have done some preliminary simulation, and I can get back to this, but I need to put this work down for a bit to work on a report for the R25 grant for the sequencing course. A pdf and a Jupyter notebook are attached with R code. (I can teach Mengqi the notebook if she is unfamiliar. It is a fabulous tool.)
+
+\item If there is no difference in performance, drop the denominator, and use simulation to explore the convergence properties under the null. Compute type I error and power using the theoretical null.
+
+\end{enumerate} 
+
+\section{What about the non-iid case?}
+
+If the denominator indeed doesn't matter, then we are doing GOF, and in that case, the statistic:
+
+$$D^*_n = \sup_{0<t<1}\left|F_n(t) - F(t)|$$
+
+is the stat you want - with 
+
+$$F(t) = \sum_{k=1}^p a_k t$$
+
+with $\sum a_k = 1$.
+
+In other words, you would want to test against a global null that is a weighted sum of uniforms. Because of the distribution-free property of $D_n$, we have that
+
+$$\sqrt{n}D_n\xrightarrow{d} K$$
+
+So, the difference between \cite{KSGene} and this method would be that here, the expected null is weighted, rather than weighing the p-values themselves. It makes the theory a whole lot easier, and I think in the case where the number of genes is large compared to the number of different weights, this is probably equivalent, because we are aggregating the signal - we don't really care which measured p-value is vastly different from expected, just that the total that are above threshold is different from the expected total. (If that makes sense?) 
+
+Now, I also think that looking at the finite case, possibly with different weights for all genes is worthwhile. It could be that permutation is really your friend there. I would encourage a look at Kouros' and Cliburn's permGPU code (or I can add the code for that stat). It's wrapped for R, and I could ask OIT for access to a suitable resource.
+
+That's all for now, folks!
+
+
+
+\bibliographystyle{unsrt}
 \bibliography{refs}
 
 \end{document} 
